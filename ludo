@@ -1,0 +1,86 @@
+#include <iostream>
+#include <ctime>
+#include <cstdlib>
+
+using namespace std;
+
+const int NUM_PLAYERS = 2;
+const int NUM_PIECES_PER_PLAYER = 4;
+const int BOARD_SIZE = 52;
+
+struct Player {
+    int pieces[NUM_PIECES_PER_PLAYER];
+};
+
+void rollDice() {
+    return (rand() % 6) + 1;
+}
+
+void initializeBoard(Player players[]) {
+    for (int i = 0; i < NUM_PLAYERS; i++) {
+        for (int j = 0; j < NUM_PIECES_PER_PLAYER; j++) {
+            players[i].pieces[j] = 0;
+        }
+    }
+}
+
+void printBoard(Player players[]) {
+    cout << "Current Board State:" << endl;
+    for (int i = 0; i < NUM_PLAYERS; i++) {
+        cout << "Player " << i + 1 << ": ";
+        for (int j = 0; j < NUM_PIECES_PER_PLAYER; j++) {
+            cout << players[i].pieces[j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+void movePiece(Player& player, int pieceIndex, int roll) {
+    player.pieces[pieceIndex] += roll;
+    if (player.pieces[pieceIndex] > BOARD_SIZE) {
+        player.pieces[pieceIndex] = BOARD_SIZE;
+    }
+}
+
+bool hasWon(Player player) {
+    for (int i = 0; i < NUM_PIECES_PER_PLAYER; i++) {
+        if (player.pieces[i] != BOARD_SIZE) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int main() {
+    srand(time(0)); // seed random number generator
+
+    Player players[NUM_PLAYERS];
+    initializeBoard(players);
+
+    int currentPlayer = 0;
+    while (true) {
+        printBoard(players);
+        cout << "Player " << currentPlayer + 1 << "'s turn. Press enter to roll the dice..." << endl;
+        cin.get();
+
+        int roll = rollDice();
+        cout << "You rolled a " << roll << endl;
+
+        // move a piece
+        cout << "Which piece would you like to move? (1-" << NUM_PIECES_PER_PLAYER << ")" << endl;
+        int pieceIndex;
+        cin >> pieceIndex;
+        pieceIndex--; // adjust for 0-based indexing
+
+        movePiece(players[currentPlayer], pieceIndex, roll);
+
+        if (hasWon(players[currentPlayer])) {
+            cout << "Player " << currentPlayer + 1 << " wins!" << endl;
+            break;
+        }
+
+        currentPlayer = (currentPlayer + 1) % NUM_PLAYERS;
+    }
+
+    return 0;
+}
